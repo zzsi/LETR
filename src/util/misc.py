@@ -18,9 +18,9 @@ from torch import Tensor
 
 # needed due to empty tensor bug in pytorch and torchvision 0.5
 import torchvision
-if float(torchvision.__version__[:3]) < 0.7:
-    from torchvision.ops import _new_empty_tensor
-    from torchvision.ops.misc import _output_size
+# if float(torchvision.__version__[:3]) < 0.7:
+#     from torchvision.ops import _new_empty_tensor
+#     from torchvision.ops.misc import _output_size
 
 
 class SmoothedValue(object):
@@ -66,10 +66,12 @@ class SmoothedValue(object):
 
     @property
     def global_avg(self):
-        return self.total / self.count
+        return self.total / max(self.count, 1)
 
     @property
     def max(self):
+        if not self.deque:
+            return 0
         return max(self.deque)
 
     @property
@@ -242,7 +244,7 @@ class MetricLogger(object):
         total_time = time.time() - start_time
         total_time_str = str(datetime.timedelta(seconds=int(total_time)))
         print('{} Total time: {} ({:.4f} s / it)'.format(
-            header, total_time_str, total_time / len(iterable)))
+            header, total_time_str, total_time / max(len(iterable), 1)))
 
 
 def get_sha():
@@ -454,14 +456,16 @@ def interpolate(input, size=None, scale_factor=None, mode="nearest", align_corne
     This will eventually be supported natively by PyTorch, and this
     class can go away.
     """
-    if float(torchvision.__version__[:3]) < 0.7:
-        if input.numel() > 0:
-            return torch.nn.functional.interpolate(
-                input, size, scale_factor, mode, align_corners
-            )
+    # if float(torchvision.__version__[:3]) < 0.7:
+    #     if input.numel() > 0:
+    #         return torch.nn.functional.interpolate(
+    #             input, size, scale_factor, mode, align_corners
+    #         )
 
-        output_shape = _output_size(2, input, size, scale_factor)
-        output_shape = list(input.shape[:-2]) + list(output_shape)
-        return _new_empty_tensor(input, output_shape)
+    #     output_shape = _output_size(2, input, size, scale_factor)
+    #     output_shape = list(input.shape[:-2]) + list(output_shape)
+    #     return _new_empty_tensor(input, output_shape)
+    if False:
+        pass
     else:
         return torchvision.ops.misc.interpolate(input, size, scale_factor, mode, align_corners)

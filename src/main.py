@@ -65,6 +65,9 @@ def main(args):
     else:
         dataset_train = build_dataset(image_set='train', args=args)
         dataset_val = build_dataset(image_set='val', args=args)
+        print("training data:", len(dataset_train))
+        print("first example:", dataset_train[0])
+        print("validation data:", len(dataset_val))
 
         if args.distributed:
             sampler_train = DistributedSampler(dataset_train)
@@ -196,6 +199,7 @@ def main(args):
         log_stats = {**{f'train_{k}': format(v, ".6f") for k, v in train_stats.items()},
                      **{f'test_{k}': format(v, ".6f") for k, v in test_stats.items()},
                      'epoch': epoch, 'n_parameters': n_parameters}
+        print(log_stats)
 
         if args.output_dir and utils.is_main_process():
             with (output_dir / "log.txt").open("a") as f:

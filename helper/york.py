@@ -26,6 +26,8 @@ import matplotlib.pyplot as plt
 from docopt import docopt
 from scipy.io import loadmat
 from scipy.ndimage import zoom
+from tqdm import tqdm
+
 
 def main():
     args = docopt(__doc__)
@@ -36,7 +38,11 @@ def main():
     dataset = sorted(glob.glob(osp.join(src_dir, "*/*.jpg")))
     image_id = 0
     anno_id = 0
+
+    # TODO: york was used as a val dataset in the paper.
+    #   Add an option to split it based on image indices in mat files.
     for mode in ["train", "val"]:
+        print(f"Processing {mode}...")
         batch = f"{mode}2017"
         os.makedirs(os.path.join(tar_dir, batch), exist_ok=True)
 
@@ -70,10 +76,10 @@ def main():
                 anno['annotations'].append(info)
 
             image_id += 1
-            print(f"Finishing {image_path}")
+            # print(f"Finishing {image_path}")
             return anno_id
 
-        if mode == "val":
+        if True: # mode == "train": # "val"
             for img in dataset:
                 anno_id = handle(img, image_id, anno_id, batch)
                 image_id += 1
